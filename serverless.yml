@@ -8,7 +8,7 @@ service: sls-aws-backend
 stages:
   default:
     params:
-      tableName: "users-table-${sls:stage}"
+      tableName: "handicrafts-dev"
 
 provider:
   name: aws
@@ -28,7 +28,7 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::GetAtt: [HandiCraftsTable, Arn]
   environment:
     USERS_TABLE: ${param:tableName}
 
@@ -40,14 +40,14 @@ functions:
 
 resources:
   Resources:
-    UsersTable:
+    HandiCraftsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: craftId
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: craftId
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${param:tableName}

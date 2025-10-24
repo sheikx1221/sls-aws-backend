@@ -1,8 +1,6 @@
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-
 const {
   DynamoDBDocumentClient,
-  GetCommand,
   PutCommand,
 } = require("@aws-sdk/lib-dynamodb");
 
@@ -11,64 +9,58 @@ const serverless = require("serverless-http");
 
 const app = express();
 
-const USERS_TABLE = process.env.USERS_TABLE;
+const HANDICRAFTS_TABLE = process.env.HANDICRAFTS_TABLE;
 const client = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(client);
 
 app.use(express.json());
 
-app.get("/users/:userId", async (req, res) => {
-  const params = {
-    TableName: USERS_TABLE,
-    Key: {
-      userId: req.params.userId,
-    },
-  };
-
+app.post('/handicrafts', async (req, res, next) => {
   try {
-    const command = new GetCommand(params);
-    const { Item } = await docClient.send(command);
-    if (Item) {
-      const { userId, name } = Item;
-      res.json({ userId, name });
-    } else {
-      res
-        .status(404)
-        .json({ error: 'Could not find user with provided "userId"' });
-    }
+      const body = JSON.parse(req.body);
+  
+      if (!body.name || !body.category || !body.price) {
+          res.status(400).json({
+            error: 'Missing required fields: name, category, and price are required'
+          });
+      }
+  
+      const handicraftId = generateId("hc");
+      const item = {
+          craftId: handicraftId,
+          name: body.name,
+          category: body.category,
+          price: parseFloat(body.price),
+          description: body.description || '',
+          materials: body.materials || [],
+          inStock: body.inStock !== undefined ? body.inStock : true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+      };
+  
+      if (isNaN(item.price) || item.price < 0) {
+          res.status(400).json({
+            error: 'Price must be a positive number'
+          });
+      }
+  
+      await docClient.send(new PutCommand({
+          TableName: HANDICRAFTS_TABLE,
+          Item: item
+      }));
+      
+      res.status(201).json({
+        message: 'Handicraft created successfully',
+        data: item
+      });
+  
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Could not retrieve user" });
+      console.error('Error creating handicraft:', error);
+      res.status(500).json({
+        error: 'Could not create handicraft item',
+        details: error.message
+      });
   }
-});
-
-app.post("/users", async (req, res) => {
-  const { userId, name } = req.body;
-  if (typeof userId !== "string") {
-    res.status(400).json({ error: '"userId" must be a string' });
-  } else if (typeof name !== "string") {
-    res.status(400).json({ error: '"name" must be a string' });
-  }
-
-  const params = {
-    TableName: USERS_TABLE,
-    Item: { userId, name },
-  };
-
-  try {
-    const command = new PutCommand(params);
-    await docClient.send(command);
-    res.json({ userId, name });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Could not create user" });
-  }
-});
-
-app.use((req, res, next) => {
-  return res.status(404).json({
-    error: "Not Found",
-  });
 });
 
 exports.handler = serverless(app);
