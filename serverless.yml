@@ -33,10 +33,19 @@ provider:
     USERS_TABLE: ${param:tableName}
 
 functions:
-  api:
-    handler: handler.handler
+  createHandicraft:
+    handler: handlers/handicrafts/create.handler
     events:
-      - httpApi: "*"
+      - httpApi:
+          method: POST
+          path: /handicrafts
+
+  getHandicraft:
+    handler: handlers/handicrafts/read.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /handicrafts
 
 resources:
   Resources:
