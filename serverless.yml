@@ -6,9 +6,14 @@ app: sls-handicraft-backend
 service: sls-aws-backend
 
 stages:
-  default:
+  prod:
     params:
-      tableName: "handicrafts-dev"
+      handicraftTableName: "handicrafts-prod"
+      cartTableName: "carts-prod"
+  dev:
+    params:
+      handicraftTableName: "handicrafts-dev"
+      cartTableName: "carts-dev"
 
 provider:
   name: aws
@@ -29,8 +34,10 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [HandiCraftsTable, Arn]
+            - Fn::GetAtt: [CartTable, Arn]
   environment:
-    USERS_TABLE: ${param:tableName}
+    HANDICRAFTS_TABLE: ${param:handicraftTableName}
+    CART_TABLE: ${param:cartTableName}
 
 functions:
   createHandicraft:
@@ -39,6 +46,13 @@ functions:
       - httpApi:
           method: POST
           path: /handicrafts
+
+  createCartItem:
+    handler: handlers/cart/create.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /carts
 
   getHandicraft:
     handler: handlers/handicrafts/read.handler
@@ -53,6 +67,13 @@ functions:
       - httpApi:
           method: GET
           path: /handicrafts/list
+
+  listCartItems:
+    handler: handlers/cart/list.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /carts
 
   deleteHandicraft:
     handler: handlers/handicrafts/delete.handler
@@ -73,4 +94,20 @@ resources:
           - AttributeName: craftId
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        TableName: ${param:tableName}
+        TableName: ${param:handicraftTableName}
+
+    CartTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: itemId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: itemId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${param:cartTableName}
