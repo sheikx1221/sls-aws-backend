@@ -47,6 +47,20 @@ functions:
           method: GET
           path: /handicrafts
 
+  listHandicraft:
+    handler: handlers/handicrafts/list.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /handicrafts/list
+
+  deleteHandicraft:
+    handler: handlers/handicrafts/delete.handler
+    events:
+      - httpApi:
+          method: DELETE
+          path: /handicrafts
+
 resources:
   Resources:
     HandiCraftsTable:

@@ -2,7 +2,6 @@ const { dynamoDb, QueryCommand } = require("../../db/dynamoDBClient");
 const tables = require('../../db/tables');
 
 exports.handler = async (event) => {
-    console.log("event.queryStringParams = ",event.queryStringParameters);
     const craftId = event?.queryStringParameters?.craftId;
     if (!craftId) {
         return {
