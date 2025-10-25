@@ -75,12 +75,26 @@ functions:
           method: GET
           path: /carts
 
+  updateCartItem:
+    handler: handlers/cart/update.handler
+    events:
+      - httpApi:
+          method: PUT
+          path: /carts
+
   deleteHandicraft:
     handler: handlers/handicrafts/delete.handler
     events:
       - httpApi:
           method: DELETE
           path: /handicrafts
+
+  deleteCartItem:
+    handler: handlers/cart/delete.handler
+    events:
+      - httpApi:
+          method: DELETE
+          path: /carts
 
 resources:
   Resources:
