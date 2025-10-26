@@ -10,10 +10,12 @@ stages:
     params:
       handicraftTableName: "handicrafts-prod"
       cartTableName: "carts-prod"
+      sessionTableName: "sessions-prod"
   dev:
     params:
       handicraftTableName: "handicrafts-dev"
       cartTableName: "carts-dev"
+      sessionTableName: "sessions-dev"
 
 provider:
   name: aws
@@ -35,9 +37,12 @@ provider:
           Resource:
             - Fn::GetAtt: [HandiCraftsTable, Arn]
             - Fn::GetAtt: [CartTable, Arn]
+            - Fn::GetAtt: [SessionsTable, Arn]
   environment:
     HANDICRAFTS_TABLE: ${param:handicraftTableName}
     CART_TABLE: ${param:cartTableName}
+    SESSIONS_TABLE: ${param:sessionTableName}
+
   httpApi:
     authorizers:
       customAuthorizer:
@@ -135,3 +140,17 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${param:cartTableName}
+
+    SessionsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: sessionId
+            AttributeType: S
+          - AttributeName: deviceFingerprint
+            AttributeType: S
+        KeySchema:
+          - AttributeName: sessionId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${param:sessionTableName}
