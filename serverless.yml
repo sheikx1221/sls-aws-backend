@@ -38,14 +38,24 @@ provider:
   environment:
     HANDICRAFTS_TABLE: ${param:handicraftTableName}
     CART_TABLE: ${param:cartTableName}
+  httpApi:
+    authorizers:
+      customAuthorizer:
+        type: request
+        functionName: authguardFunc
 
 functions:
+  authguardFunc:
+    handler: handlers/auth/authorizer.handler
+
   createHandicraft:
     handler: handlers/handicrafts/create.handler
     events:
       - httpApi:
           method: POST
           path: /handicrafts
+          authorizer:
+            name: customAuthorizer
 
   createCartItem:
     handler: handlers/cart/create.handler

@@ -28,6 +28,7 @@ exports.handler = async (event) => {
             description: body.description || '',
             materials: body.materials || [],
             inStock: body.inStock !== undefined ? body.inStock : true,
+            images: body.images || [],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
