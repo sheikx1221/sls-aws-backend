@@ -1,10 +1,9 @@
 const tables = require('../../db/tables');
 const { QueryCommand, PutCommand, UpdateCommand, dynamoDb } = require('../../db/dynamoDBClient');
-const { generateId } = require('../../utils/functions');
 
 exports.handler = async (event) => {
     if ('x-session-id' in event.headers) {
-        const validate = validateSessionKey(event.headers['x-session-id']);
+        const validate = await validateSessionKey(event.headers['x-session-id']);
         if (validate) {
             return generatePolicy('user', 'Allow', event.routeArn, {
                 userId: event.headers['x-session-id'],
@@ -59,9 +58,8 @@ const validateSessionKey = async (sessionKey) => {
             // < 100        < 1s        reset invocation=0,sessionEnd=true
             // > 100        > 1s        false
             // > 100        < 1s        reset invocation=0,sessionEnd=true
-
             if (item.invocations < 100) {
-                if (Date.now() < new Date(item.sessionEnd).getTime()) return await updateSession(sessionKey, item.api_invocations+1);
+                if (Date.now() < new Date(item.sessionEnd).getTime()) return await updateSession(sessionKey, item.invocations+1);
                 else return await updateSession(sessionKey, 0, true);
             }
             else {
@@ -79,7 +77,6 @@ const createSession = async (sessionKey) => {
     try {
         const sessionEnd = new Date(Date.now() + 86400000).toISOString();
         const item = {
-            sessionId: generateId("session_"),
             deviceFingerprint: sessionKey,
             invocations: 1,
             sessionEnd: sessionEnd
@@ -110,16 +107,16 @@ const updateSession = async (sessionKey, invocations, sessionEnd) => {
         if (sessionEnd) {
             const newSessionEnd = new Date(Date.now() + 86400000).toISOString();
             updateParams.UpdateExpression = `SET invocations = :inv, sessionEnd = :se`;
-            ExpressionAttributeValues = {
+            Object.assign(updateParams.ExpressionAttributeValues, {
                 ':inv': invocations,
                 ':se': newSessionEnd
-            }
+            })
         }
         else {
             updateParams.UpdateExpression = `SET invocations = :inv`;
-            ExpressionAttributeValues = {
+            Object.assign(updateParams.ExpressionAttributeValues, {
                 ':inv': invocations
-            }
+            });
         }
 
         await dynamoDb.send(new UpdateCommand(updateParams));
