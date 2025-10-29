@@ -2,6 +2,9 @@
   "name": "sls-aws-backend",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.585.0",
     "@aws-sdk/lib-dynamodb": "^3.585.0",

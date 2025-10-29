@@ -5,12 +5,17 @@ const tables = require("../../db/tables");
 exports.handler = async (event) => {
     try {
         const body = event.body ? JSON.parse(event.body) : {};
-        const deviceFingerprint = body.deviceFingerprint || event?.queryStringParameters?.deviceFingerprint;
-        const craftId = body.craftId || event?.queryStringParameters?.craftId;
-        const qtyRaw = body.qty ?? event?.queryStringParameters?.qty;
-        const amountRaw = body.amount ?? event?.queryStringParameters?.amount;
+        const { 
+            deviceFingerprint,
+            craftId,
+            craftName,
+            category,
+            image,
+            qty,
+            amount
+        } = body;
 
-        if (!deviceFingerprint || !craftId || qtyRaw === undefined || amountRaw === undefined) {
+        if (!deviceFingerprint || !craftId || !craftName || !qty || !amount) {
             return {
                 statusCode: 400,
                 headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -18,16 +23,17 @@ exports.handler = async (event) => {
             };
         }
 
-        const qty = parseInt(qtyRaw, 10);
-        const amount = parseFloat(amountRaw);
-        if (Number.isNaN(qty) || qty <= 0) {
+        const qtyParsed = parseInt(qty);
+        const amountParsed = parseInt(amount);
+
+        if (Number.isNaN(qtyParsed) || qtyParsed <= 0) {
             return {
                 statusCode: 400,
                 headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
                 body: JSON.stringify({ error: 'qty must be a positive integer' })
             };
         }
-        if (Number.isNaN(amount) || amount < 0) {
+        if (Number.isNaN(amountParsed) || amountParsed < 0) {
             return {
                 statusCode: 400,
                 headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -40,10 +46,15 @@ exports.handler = async (event) => {
 
         const item = {
             cartId,
-            deviceFingerprint,
-            craftId,
-            qty,
-            amount,
+            deviceFingerprint: String(deviceFingerprint),
+            craft: {
+                craftId,
+                name: craftName,
+                category,
+                image
+            },
+            qty: qtyParsed,
+            amount: amountParsed,
             createdAt: now,
             updatedAt: now
         };
