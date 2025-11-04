@@ -32,7 +32,7 @@ const generatePolicy = (principalId, effect, resource, context) => {
 
     authResponse.policyDocument = policyDocument;
     if (context) {
-        authResponse.context = context; // Optional context for downstream Lambda
+        authResponse.context = context;
     }
     return authResponse;
 };
