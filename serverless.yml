@@ -34,6 +34,8 @@ provider:
             - dynamodb:PutItem
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
+            - dynamodb:PartiQLDelete
+            - dynamodb:PartiQLUpdate
           Resource:
             - Fn::GetAtt: [HandiCraftsTable, Arn]
             - Fn::GetAtt: [CartTable, Arn]
@@ -116,6 +118,15 @@ functions:
       - httpApi:
           method: PUT
           path: /carts
+          authorizer:
+            name: customAuthorizer
+
+  modifyCartItems:
+    handler: handlers/cart/modify.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /carts/modify
           authorizer:
             name: customAuthorizer
 

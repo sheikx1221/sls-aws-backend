@@ -58,13 +58,25 @@ const validateSessionKey = async (sessionKey) => {
             // < 100        < 1s        reset invocation=0,sessionEnd=true
             // > 100        > 1s        false
             // > 100        < 1s        reset invocation=0,sessionEnd=true
+            const currentTime = Date.now();
+            const sessionEndTime = new Date(item.sessionEnd).getTime();
+
             if (item.invocations < 100) {
-                if (Date.now() < new Date(item.sessionEnd).getTime()) return await updateSession(sessionKey, item.invocations+1);
-                else return await updateSession(sessionKey, 0, true);
-            }
-            else {
-                if (Date.now() < new Date(item.sessionEnd).getTime()) return await updateSession(sessionKey, 0, true);
-                else return false;
+                if (currentTime < sessionEndTime) {
+                    // Session still active, increment invocations
+                    return await updateSession(sessionKey, item.invocations + 1);
+                } else {
+                    // Session expired, reset
+                    return await updateSession(sessionKey, 0, true);
+                }
+            } else {
+                if (currentTime < sessionEndTime) {
+                    // Invocation limit reached but session still active
+                    return false;
+                } else {
+                    // Session expired, reset even though limit was reached
+                    return await updateSession(sessionKey, 0, true);
+                }
             }
         }
         catch(err) {
