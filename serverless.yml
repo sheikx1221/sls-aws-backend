@@ -46,8 +46,7 @@ provider:
     SESSIONS_TABLE: ${param:sessionTableName}
   httpApi:
     cors:
-      allowedOrigins: 
-        - http://localhost:5173
+      allowedOrigins:
         - https://master.d1rsombouxhlr0.amplifyapp.com
         - https://dev.d1rsombouxhlr0.amplifyapp.com
       allowedHeaders: 
@@ -59,6 +58,7 @@ provider:
         - POST
         - PUT
         - DELETE
+        - OPTIONS
       maxAge: 6000
     authorizers:
       customAuthorizer:
