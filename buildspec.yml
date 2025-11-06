@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20  # Directly specifies Node.js 20
+    commands:
+      - echo "Installing dependencies..."
+  pre_build:
+    commands:
+      - echo "Node.js version: $(node --version)"
+      - echo "Installing Serverless Framework..."
+      - npm install -g serverless@4
+  build:
+    commands:
+      - echo "Installing project dependencies..."
+      - npm ci
+  post_build:
+    commands:
+      - echo "Deploying using serverless deploy..."
+      - serverless deploy --stage dev --region us-east-1
