@@ -2,6 +2,13 @@ const tables = require('../../db/tables');
 const { QueryCommand, PutCommand, UpdateCommand, dynamoDb } = require('../../db/dynamoDBClient');
 
 exports.handler = async (event) => {
+    if (event.method == 'OPTIONS') {
+        console.log('Allowing OPTIONS preflight request');
+        return generatePolicy('anonymous', 'Allow', event.routeArn, {
+            userId: 'anonymous',
+            roles: ['guest']
+        });
+    }
     if ('x-session-id' in event.headers) {
         const validate = await validateSessionKey(event.headers['x-session-id']);
         if (validate) {
