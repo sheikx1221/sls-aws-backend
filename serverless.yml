@@ -48,6 +48,7 @@ provider:
     cors:
       allowedOrigins: 
         - http://localhost:5173
+        - https://master.d1rsombouxhlr0.amplifyapp.com
       allowedHeaders: 
         - Content-Type
         - Authorization
