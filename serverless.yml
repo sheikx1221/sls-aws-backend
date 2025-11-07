@@ -45,6 +45,7 @@ provider:
     CART_TABLE: ${param:cartTableName}
     SESSIONS_TABLE: ${param:sessionTableName}
     SERVERLESS_LICENSE_KEY: ${ssm:/aws/reference/secretsmanager/sls-aws-backend-dev-license-key~true}
+    SERVERLESS_ACCESS_KEY: ${ssm:/aws/reference/secretsmanager/sls-aws-backend-dev-access-key~true}
   httpApi:
     cors:
       allowedOrigins:
