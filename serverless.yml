@@ -1,7 +1,7 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: hassannasir
 # "app" enables Serverless Framework Dashboard features and sharing them with other Services.
-# app: sls-handicraft-backend
+app: sls-handicraft-backend
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: sls-aws-backend
 
@@ -44,8 +44,6 @@ provider:
     HANDICRAFTS_TABLE: ${param:handicraftTableName}
     CART_TABLE: ${param:cartTableName}
     SESSIONS_TABLE: ${param:sessionTableName}
-    SERVERLESS_LICENSE_KEY: ${ssm:/aws/reference/secretsmanager/sls-aws-backend-dev-license-key~true}
-    SERVERLESS_ACCESS_KEY: ${ssm:/aws/reference/secretsmanager/sls-aws-backend-dev-access-key~true}
   httpApi:
     cors:
       allowedOrigins:

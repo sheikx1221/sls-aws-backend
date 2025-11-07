@@ -10,15 +10,17 @@ exports.handler = async (event) => {
         });
     }
     if ('x-session-id' in event.headers) {
+        console.log('validating x-session-id');
         const validate = await validateSessionKey(event.headers['x-session-id']);
         if (validate) {
+            console.log('Request is valid');
             return generatePolicy('user', 'Allow', event.routeArn, {
                 userId: event.headers['x-session-id'],
                 roles: ['admin']
             });
         }
     }
-
+    console.log('Request denied');
     return generatePolicy('user', 'Deny', event.routeArn);
 };
 
