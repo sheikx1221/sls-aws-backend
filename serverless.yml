@@ -1,7 +1,7 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: hassannasir
 # "app" enables Serverless Framework Dashboard features and sharing them with other Services.
-app: sls-handicraft-backend
+# app: sls-handicraft-backend
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: sls-aws-backend
 
